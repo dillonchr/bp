@@ -1,0 +1,43 @@
+<div>
+  <canvas id="myChart"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  async function getRecordings() {
+    const url =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuadI5ZYJv_od7__LoTqPO1nBXNlCNBzdl2a5IKpP5qhW5WDIDPJgivXiwy3C6-bV-3CGM0BiMx5NQ/pub?gid=0&single=true&output=tsv";
+    const req = await fetch(url);
+    const sheet = await req.text();
+    return sheet
+      .split("\n")
+      .splice(1)
+      .map((r) => {
+        const [date, s, d] = r.split("\t");
+        return { s, d, date };
+      });
+  }
+
+  getRecordings().then((recordings) => {
+    var myChart = new Chart(document.getElementById("myChart"), {
+      type: "line",
+      data: {
+        labels: recordings.map(({ date }) => date),
+        datasets: [
+          {
+            label: "Systolic (mmHg)",
+            backgroundColor: "rgb(99, 255, 132)",
+            borderColor: "rgb(99, 255, 132)",
+            data: recordings.map(({ s }) => s),
+          },
+          {
+            label: "Diastolic (mmHg)",
+            backgroundColor: "rgb(255, 99, 132)",
+            borderColor: "rgb(255, 99, 132)",
+            data: recordings.map(({ d }) => d),
+          },
+        ],
+      },
+      options: {},
+    });
+  });
+</script>
